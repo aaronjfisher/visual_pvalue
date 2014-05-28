@@ -11,7 +11,7 @@ library(plotrix)
 library(lme4)
 
 #Note to editor: Code book for these two files will be a part of the online supplement
-x_full<-read.csv('tidyCourseraPval.csv',header=TRUE) #user responses to coursera questions.
+x_full<-read.csv('coursera_user_responses.csv',header=TRUE) #user responses to coursera questions.
 load('data_for_1plots_coursera.RData')  #objects describing the library of plots shown to users.
 
 logit<-function(x) log(x/(1-x))
@@ -182,7 +182,6 @@ getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xla
 abline(h=4.5,lty=1,col='darkgray')
 abline(h=5.5,lty=1,col='darkgray')
 mtext('% Accuracy (Specificity)', side=3, line=.2)
-########
 ```
 
 
