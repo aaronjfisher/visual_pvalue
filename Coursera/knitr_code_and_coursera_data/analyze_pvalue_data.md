@@ -13,7 +13,7 @@ library(lme4)
 
 # Note to editor: Code book for these two files will be a part of the online
 # supplement
-x_full <- read.csv("tidyCourseraPval.csv", header = TRUE)  #user responses to coursera questions.
+x_full <- read.csv("coursera_user_responses.csv", header = TRUE)  #user responses to coursera questions.
 load("data_for_1plots_coursera.RData")  #objects describing the library of plots shown to users.
 
 logit <- function(x) log(x/(1 - x))
@@ -93,36 +93,45 @@ sum(!attemptNum1Data$trueSig)  # number of responses used in spec model = 9032
 
 glmmSense = glmer(correct ~ 1 + (1 | id) + style, data = attemptNum1Data[attemptNum1Data$trueSig, 
     ], family = "binomial")  #Sensitivity model
+```
+
+```
+## Warning: Model failed to converge with max|grad| = 0.039379 (tol = 0.001)
+```
+
+```r
 glmmSpec = glmer(correct ~ 1 + (1 | id) + style, data = attemptNum1Data[!attemptNum1Data$trueSig, 
     ], family = "binomial")  #Specificity model
+```
+
+```
+## Warning: Model failed to converge with max|grad| = 0.00643088 (tol =
+## 0.001)
+```
+
+```r
 
 # Show basic output
 print(glmmSense, correlation = FALSE)
 ```
 
 ```
-## Generalized linear mixed model fit by the Laplace approximation 
-## Formula: correct ~ 1 + (1 | id) + style 
-##    Data: attemptNum1Data[attemptNum1Data$trueSig, ] 
-##    AIC   BIC logLik deviance
-##  12099 12163  -6041    12081
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial ( logit )
+## Formula: correct ~ 1 + (1 | id) + style
+##    Data: attemptNum1Data[attemptNum1Data$trueSig, ]
+##      AIC      BIC   logLik deviance df.resid 
+##    12099    12163    -6041    12081     9054 
 ## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  id     (Intercept) 0.397    0.63    
+##  Groups Name        Std.Dev.
+##  id     (Intercept) 0.63    
 ## Number of obs: 9063, groups: id, 2036
-## 
-## Fixed effects:
-##                Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)     -0.1025     0.0472   -2.17  0.02985 *  
-## stylen35        -0.7893     0.0839   -9.41  < 2e-16 ***
-## stylen200       -0.1158     0.0790   -1.47  0.14252    
-## stylebestFit     0.4805     0.0804    5.97  2.3e-09 ***
-## styleaxesScale   0.2791     0.0806    3.46  0.00054 ***
-## styleaxesLabel   0.0170     0.0791    0.21  0.82980    
-## styleoutlier     1.0134     0.0840   12.07  < 2e-16 ***
-## stylelowess      0.2297     0.0791    2.91  0.00367 ** 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Fixed Effects:
+##    (Intercept)        stylen35       stylen200    stylebestFit  
+##         -0.103          -0.789          -0.116           0.480  
+## styleaxesScale  styleaxesLabel    styleoutlier     stylelowess  
+##          0.279           0.017           1.013           0.230
 ```
 
 ```r
@@ -130,28 +139,22 @@ print(glmmSpec, correlation = FALSE)
 ```
 
 ```
-## Generalized linear mixed model fit by the Laplace approximation 
-## Formula: correct ~ 1 + (1 | id) + style 
-##    Data: attemptNum1Data[!attemptNum1Data$trueSig, ] 
-##    AIC   BIC logLik deviance
-##  11120 11184  -5551    11102
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial ( logit )
+## Formula: correct ~ 1 + (1 | id) + style
+##    Data: attemptNum1Data[!attemptNum1Data$trueSig, ]
+##      AIC      BIC   logLik deviance df.resid 
+##    11120    11184    -5551    11102     9023 
 ## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  id     (Intercept) 0.587    0.766   
+##  Groups Name        Std.Dev.
+##  id     (Intercept) 0.765   
 ## Number of obs: 9032, groups: id, 2032
-## 
-## Fixed effects:
-##                Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)      1.0768     0.0543   19.83  < 2e-16 ***
-## stylen35         0.5227     0.0982    5.32  1.0e-07 ***
-## stylen200       -1.1401     0.0845  -13.49  < 2e-16 ***
-## stylebestFit    -0.5112     0.0852   -6.00  2.0e-09 ***
-## styleaxesScale  -0.4008     0.0853   -4.70  2.6e-06 ***
-## styleaxesLabel  -0.2092     0.0885   -2.36    0.018 *  
-## styleoutlier    -0.5294     0.0863   -6.13  8.7e-10 ***
-## stylelowess     -0.3576     0.0869   -4.12  3.8e-05 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Fixed Effects:
+##    (Intercept)        stylen35       stylen200    stylebestFit  
+##          1.076           0.522          -1.139          -0.511  
+## styleaxesScale  styleaxesLabel    styleoutlier     stylelowess  
+##         -0.400          -0.209          -0.529          -0.357
 ```
 
 ```r
@@ -171,14 +174,14 @@ getORCIs(glmmSense)
 
 ```
 ##                  fit    li    ui
-## (Intercept)    0.903 0.823 0.990
-## stylen35       0.454 0.385 0.535
-## stylen200      0.891 0.763 1.040
-## stylebestFit   1.620 1.380 1.890
-## styleaxesScale 1.320 1.130 1.550
-## styleaxesLabel 1.020 0.871 1.190
-## styleoutlier   2.760 2.340 3.250
-## stylelowess    1.260 1.080 1.470
+## (Intercept)    0.903 0.820 0.993
+## stylen35       0.454 0.384 0.538
+## stylen200      0.891 0.759 1.040
+## stylebestFit   1.620 1.370 1.900
+## styleaxesScale 1.320 1.120 1.560
+## styleaxesLabel 1.020 0.867 1.190
+## styleoutlier   2.750 2.330 3.260
+## stylelowess    1.260 1.070 1.480
 ```
 
 ```r
@@ -187,14 +190,14 @@ getORCIs(glmmSpec)
 
 ```
 ##                  fit    li    ui
-## (Intercept)    2.940 2.640 3.260
+## (Intercept)    2.930 2.630 3.270
 ## stylen35       1.690 1.390 2.040
-## stylen200      0.320 0.271 0.377
-## stylebestFit   0.600 0.508 0.709
-## styleaxesScale 0.670 0.567 0.792
-## styleaxesLabel 0.811 0.682 0.965
-## styleoutlier   0.589 0.497 0.698
-## stylelowess    0.699 0.590 0.829
+## stylen200      0.320 0.269 0.381
+## stylebestFit   0.600 0.506 0.713
+## styleaxesScale 0.670 0.565 0.795
+## styleaxesLabel 0.811 0.680 0.969
+## styleoutlier   0.589 0.495 0.701
+## stylelowess    0.700 0.588 0.833
 ```
 
 ```r
@@ -220,7 +223,7 @@ get_var_explained_by_rand_int(glmmSpec)
 
 ```
 ## (Intercept) 
-##      0.1515
+##      0.1511
 ```
 
 
@@ -264,6 +267,7 @@ getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,ax
 	if(plotIt){
 		plotCI(x=center[plotInd]*100,y=(length(plotInd)):1,ui=ui[plotInd]*100,li=li[plotInd]*100,pch=19,cex=.5,yaxt='n',err='x',ylab='', ...)
 		if(axisLab) axis(2, at=1:(length(plotInd)), labels=pretty_style_labels[plotInd][(length(plotInd)):1],cex.axis=cex.axis,las=2) #need to reorder labels so they go down, not up
+		abline(v=center[1]*100,lty=2,col='darkgray')
 	}
 	
 	return(cbind(center,ui,li,modelCoef))
@@ -299,14 +303,14 @@ getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(
 
 ```
 ##             center     ui     li modelCoef
-## (Intercept) 0.4744 0.4975 0.4514   -0.1025
-## n35         0.2907 0.3207 0.2625   -0.7893
-## n200        0.4456 0.4779 0.4138   -0.1158
-## bestFit     0.5934 0.6251 0.5609    0.4805
-## axesScale   0.5440 0.5770 0.5107    0.2791
-## axesLabel   0.4786 0.5112 0.4463    0.0170
-## outlier     0.7132 0.7412 0.6834    1.0134
-## lowess      0.5317 0.5640 0.4992    0.2297
+## (Intercept) 0.4744 0.4982 0.4507  -0.10254
+## n35         0.2907 0.3215 0.2618  -0.78926
+## n200        0.4456 0.4789 0.4128  -0.11576
+## bestFit     0.5934 0.6261 0.5598   0.48043
+## axesScale   0.5440 0.5780 0.5096   0.27902
+## axesLabel   0.4786 0.5122 0.4453   0.01702
+## outlier     0.7132 0.7418 0.6827   1.01330
+## lowess      0.5319 0.5651 0.4984   0.23034
 ```
 
 ```r
@@ -318,14 +322,14 @@ getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xla
 
 ```
 ##             center     ui     li modelCoef
-## (Intercept) 0.7459 0.7655 0.7252    1.0768
-## n35         0.8319 0.8541 0.8072    0.5227
-## n200        0.4842 0.5180 0.4505   -1.1401
-## bestFit     0.6377 0.6688 0.6055   -0.5112
-## axesScale   0.6628 0.6928 0.6315   -0.4008
-## axesLabel   0.7042 0.7335 0.6732   -0.2092
-## outlier     0.6335 0.6654 0.6005   -0.5294
-## lowess      0.6724 0.7027 0.6406   -0.3576
+## (Intercept) 0.7457 0.7660 0.7242    1.0757
+## n35         0.8317 0.8541 0.8066    0.5219
+## n200        0.4842 0.5193 0.4492   -1.1390
+## bestFit     0.6376 0.6698 0.6042   -0.5106
+## axesScale   0.6627 0.6937 0.6303   -0.4003
+## axesLabel   0.7041 0.7342 0.6720   -0.2089
+## outlier     0.6334 0.6663 0.5992   -0.5287
+## lowess      0.6723 0.7035 0.6395   -0.3572
 ```
 
 ```r
@@ -335,10 +339,6 @@ mtext('% Accuracy (Specificity)', side=3, line=.2)
 ```
 
 ![plot of chunk figure1](figure/figure1.png) 
-
-```r
-########
-```
 
 
 
@@ -385,40 +385,45 @@ dim(multi_try_data_sense_leq_cut)  #846 = # responses in model
 ```r
 glmmSenseLearn_rIntercept = glmer(correct ~ 1 + (1 | id) + attemptNumFactor * 
     style, data = multi_try_data_sense_leq_cut, family = "binomial")  # Fit model with interaction terms
+```
+
+```
+## Warning: Model failed to converge with max|grad| = 0.147369 (tol = 0.001)
+```
+
+```r
 print(glmmSenseLearn_rIntercept, correlation = FALSE)
 ```
 
 ```
-## Generalized linear mixed model fit by the Laplace approximation 
-## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style 
-##    Data: multi_try_data_sense_leq_cut 
-##   AIC  BIC logLik deviance
-##  1131 1212   -549     1097
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial ( logit )
+## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style
+##    Data: multi_try_data_sense_leq_cut
+##      AIC      BIC   logLik deviance df.resid 
+##   1131.1   1211.7   -548.6   1097.1      829 
 ## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  id     (Intercept) 0.147    0.383   
+##  Groups Name        Std.Dev.
+##  id     (Intercept) 0.383   
 ## Number of obs: 846, groups: id, 101
-## 
-## Fixed effects:
-##                                  Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)                        -0.480      0.209   -2.30  0.02147 *  
-## attemptNumFactor2                   1.663      0.343    4.85  1.2e-06 ***
-## stylen35                           -1.231      0.424   -2.90  0.00372 ** 
-## stylen200                           0.422      0.345    1.22  0.22207    
-## stylebestFit                        0.220      0.359    0.61  0.53927    
-## styleaxesScale                      0.401      0.336    1.20  0.23207    
-## styleaxesLabel                      0.228      0.359    0.64  0.52499    
-## styleoutlier                        0.947      0.368    2.57  0.01012 *  
-## stylelowess                         0.729      0.359    2.03  0.04228 *  
-## attemptNumFactor2:stylen35         -0.157      0.583   -0.27  0.78771    
-## attemptNumFactor2:stylen200        -1.316      0.547   -2.40  0.01625 *  
-## attemptNumFactor2:stylebestFit     -0.573      0.551   -1.04  0.29857    
-## attemptNumFactor2:styleaxesScale   -0.985      0.537   -1.84  0.06635 .  
-## attemptNumFactor2:styleaxesLabel   -1.531      0.562   -2.72  0.00648 ** 
-## attemptNumFactor2:styleoutlier     -1.698      0.546   -3.11  0.00186 ** 
-## attemptNumFactor2:stylelowess      -2.055      0.544   -3.78  0.00016 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Fixed Effects:
+##                      (Intercept)                 attemptNumFactor2  
+##                           -0.475                             1.656  
+##                         stylen35                         stylen200  
+##                           -1.238                             0.416  
+##                     stylebestFit                    styleaxesScale  
+##                            0.211                             0.393  
+##                   styleaxesLabel                      styleoutlier  
+##                            0.222                             0.945  
+##                      stylelowess        attemptNumFactor2:stylen35  
+##                            0.725                            -0.150  
+##      attemptNumFactor2:stylen200    attemptNumFactor2:stylebestFit  
+##                           -1.308                            -0.561  
+## attemptNumFactor2:styleaxesScale  attemptNumFactor2:styleaxesLabel  
+##                           -0.975                            -1.522  
+##   attemptNumFactor2:styleoutlier     attemptNumFactor2:stylelowess  
+##                           -1.694                            -2.049
 ```
 
 ```r
@@ -433,40 +438,46 @@ dim(multi_try_data_spec_leq_cut)  #859 = # responses in model
 ```r
 glmmSpecLearn_rIntercept = glmer(correct ~ 1 + (1 | id) + attemptNumFactor * 
     style, data = multi_try_data_spec_leq_cut, family = "binomial")  #
+```
+
+```
+## Warning: Model failed to converge with max|grad| = 0.00275478 (tol =
+## 0.001)
+```
+
+```r
 print(glmmSpecLearn_rIntercept, correlation = FALSE)
 ```
 
 ```
-## Generalized linear mixed model fit by the Laplace approximation 
-## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style 
-##    Data: multi_try_data_spec_leq_cut 
-##   AIC  BIC logLik deviance
-##  1152 1232   -559     1118
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial ( logit )
+## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style
+##    Data: multi_try_data_spec_leq_cut
+##      AIC      BIC   logLik deviance df.resid 
+##   1151.6   1232.5   -558.8   1117.6      842 
 ## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  id     (Intercept) 0.447    0.668   
+##  Groups Name        Std.Dev.
+##  id     (Intercept) 0.668   
 ## Number of obs: 859, groups: id, 101
-## 
-## Fixed effects:
-##                                  Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)                        0.7709     0.2289    3.37  0.00076 ***
-## attemptNumFactor2                 -0.0269     0.3212   -0.08  0.93324    
-## stylen35                           0.9280     0.4621    2.01  0.04461 *  
-## stylen200                         -1.4387     0.3855   -3.73  0.00019 ***
-## stylebestFit                      -0.7215     0.3616   -2.00  0.04603 *  
-## styleaxesScale                    -0.8237     0.3933   -2.09  0.03624 *  
-## styleaxesLabel                    -0.1336     0.3751   -0.36  0.72172    
-## styleoutlier                      -0.2601     0.3728   -0.70  0.48532    
-## stylelowess                       -0.8086     0.3623   -2.23  0.02564 *  
-## attemptNumFactor2:stylen35        -1.7888     0.6074   -2.94  0.00323 ** 
-## attemptNumFactor2:stylen200        0.8340     0.5399    1.54  0.12239    
-## attemptNumFactor2:stylebestFit     0.3513     0.5338    0.66  0.51042    
-## attemptNumFactor2:styleaxesScale   0.0017     0.5409    0.00  0.99749    
-## attemptNumFactor2:styleaxesLabel  -0.6149     0.5268   -1.17  0.24307    
-## attemptNumFactor2:styleoutlier    -0.7241     0.5526   -1.31  0.19009    
-## attemptNumFactor2:stylelowess      0.0855     0.5214    0.16  0.86981    
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Fixed Effects:
+##                      (Intercept)                 attemptNumFactor2  
+##                          0.77087                          -0.02719  
+##                         stylen35                         stylen200  
+##                          0.92746                          -1.43888  
+##                     stylebestFit                    styleaxesScale  
+##                         -0.72145                          -0.82359  
+##                   styleaxesLabel                      styleoutlier  
+##                         -0.13382                          -0.26011  
+##                      stylelowess        attemptNumFactor2:stylen35  
+##                         -0.80865                          -1.78792  
+##      attemptNumFactor2:stylen200    attemptNumFactor2:stylebestFit  
+##                          0.83449                           0.35148  
+## attemptNumFactor2:styleaxesScale  attemptNumFactor2:styleaxesLabel  
+##                          0.00191                          -0.61431  
+##   attemptNumFactor2:styleoutlier     attemptNumFactor2:stylelowess  
+##                         -0.72382                           0.08577
 ```
 
 ```r
@@ -480,7 +491,7 @@ get_var_explained_by_rand_int(glmmSenseLearn_rIntercept)
 
 ```
 ## (Intercept) 
-##     0.04266
+##     0.04263
 ```
 
 ```r
@@ -489,7 +500,7 @@ get_var_explained_by_rand_int(glmmSpecLearn_rIntercept)
 
 ```
 ## (Intercept) 
-##      0.1196
+##      0.1195
 ```
 
 ```r
@@ -588,43 +599,43 @@ getCIlearn(glmmSenseLearn_rIntercept)
 ```
 ## $n100ref
 ##      centerProb liProb uiProb centerOR  liOR  uiOR zstat   p_value
-## [1,]     0.3821 0.2911 0.4823       NA    NA    NA    NA        NA
-## [2,]     0.7654 0.6545 0.8489    5.274 2.693 10.33 4.848 1.248e-06
+## [1,]     0.3834 0.2912 0.4849       NA    NA    NA    NA        NA
+## [2,]     0.7652 0.6532 0.8493    5.239 2.651 10.36 4.765 1.891e-06
 ## 
 ## $n35
 ##      centerProb liProb uiProb centerOR  liOR  uiOR zstat  p_value
-## [1,]     0.1529 0.0799 0.2729       NA    NA    NA    NA       NA
-## [2,]     0.4487 0.3144 0.5909    4.508 1.787 11.37  3.19 0.001422
+## [1,]     0.1528 0.0796 0.2734       NA    NA    NA    NA       NA
+## [2,]     0.4486 0.3127 0.5927     4.51 1.776 11.45 3.167 0.001539
 ## 
 ## $n200
 ##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.4853 0.3525 0.6203       NA     NA    NA     NA      NA
-## [2,]     0.5717 0.4132 0.7167    1.415 0.6133 3.266 0.8141  0.4156
+## [1,]     0.4853 0.3506 0.6222       NA     NA    NA     NA      NA
+## [2,]     0.5718 0.4113 0.7184    1.416 0.6068 3.304 0.8044  0.4212
 ## 
 ## $bestFit
 ##      centerProb liProb uiProb centerOR  liOR  uiOR zstat p_value
-## [1,]     0.4354 0.3011 0.5798       NA    NA    NA    NA      NA
-## [2,]     0.6964 0.5523 0.8101    2.975 1.279 6.919 2.532 0.01134
+## [1,]     0.4343 0.2985 0.5807       NA    NA    NA    NA      NA
+## [2,]     0.6965 0.5512 0.8109     2.99 1.274 7.017 2.516 0.01187
 ## 
 ## $axesScale
 ##      centerProb liProb uiProb centerOR   liOR  uiOR zstat p_value
-## [1,]     0.4802 0.3532 0.6097       NA     NA    NA    NA      NA
-## [2,]     0.6452 0.4937 0.7723    1.969 0.8768 4.422 1.642  0.1007
+## [1,]     0.4795 0.3509 0.6108       NA     NA    NA    NA      NA
+## [2,]     0.6455 0.4923 0.7736    1.976 0.8713 4.482  1.63   0.103
 ## 
 ## $axesLabel
 ##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.4373 0.3028 0.5816       NA     NA    NA     NA      NA
-## [2,]     0.4700 0.3145 0.6316    1.141 0.4764 2.735 0.2968  0.7666
+## [1,]     0.4371 0.3011 0.5834       NA     NA    NA     NA      NA
+## [2,]     0.4703 0.3125 0.6343    1.143 0.4708 2.776 0.2956  0.7675
 ## 
 ## $outlier
 ##      centerProb liProb uiProb centerOR   liOR  uiOR    zstat p_value
-## [1,]     0.6147 0.4658 0.7448       NA     NA    NA       NA      NA
-## [2,]     0.6063 0.4636 0.7330   0.9656 0.4208 2.216 -0.08251  0.9342
+## [1,]     0.6153 0.4645 0.7468       NA     NA    NA       NA      NA
+## [2,]     0.6064 0.4617 0.7345   0.9631 0.4155 2.233 -0.08757  0.9302
 ## 
 ## $lowess
 ##      centerProb liProb uiProb centerOR   liOR  uiOR   zstat p_value
-## [1,]     0.5618 0.4174 0.6964       NA     NA    NA      NA      NA
-## [2,]     0.4641 0.3227 0.6115   0.6755 0.2952 1.546 -0.9286  0.3531
+## [1,]     0.5621 0.4159 0.6983       NA     NA    NA      NA      NA
+## [2,]     0.4644 0.3212 0.6137   0.6753 0.2918 1.563 -0.9172  0.3591
 ```
 
 ```r
@@ -634,43 +645,43 @@ getCIlearn(glmmSpecLearn_rIntercept)
 ```
 ## $n100ref
 ##      centerProb liProb uiProb centerOR   liOR  uiOR    zstat p_value
-## [1,]     0.6837 0.5799 0.7720       NA     NA    NA       NA      NA
-## [2,]     0.6779 0.5659 0.7726   0.9735 0.5187 1.827 -0.08377  0.9332
+## [1,]     0.6837 0.5775 0.7737       NA     NA    NA       NA      NA
+## [2,]     0.6778 0.5635 0.7742   0.9732 0.5126 1.848 -0.08313  0.9337
 ## 
 ## $n35
 ##      centerProb liProb uiProb centerOR    liOR   uiOR  zstat   p_value
-## [1,]     0.8454 0.7090 0.9246       NA      NA     NA     NA        NA
-## [2,]     0.4708 0.3218 0.6252   0.1627 0.05929 0.4466 -3.525 0.0004238
+## [1,]     0.8453 0.7094 0.9244       NA      NA     NA     NA        NA
+## [2,]     0.4708 0.3183 0.6290   0.1628 0.05881 0.4508 -3.493 0.0004771
 ## 
 ## $n200
 ##      centerProb liProb uiProb centerOR   liOR  uiOR zstat p_value
-## [1,]     0.3390 0.2138 0.4917       NA     NA    NA    NA      NA
-## [2,]     0.5348 0.3879 0.6758    2.241 0.9578 5.245 1.861 0.06281
+## [1,]     0.3389 0.2113 0.4953       NA     NA    NA    NA      NA
+## [2,]     0.5348 0.3841 0.6794    2.242 0.9347 5.377 1.809  0.0705
 ## 
 ## $bestFit
 ##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.5123 0.3707 0.6521       NA     NA    NA     NA      NA
-## [2,]     0.5924 0.4359 0.7321    1.383 0.5995 3.191 0.7606  0.4469
+## [1,]     0.5124 0.3673 0.6554       NA     NA    NA     NA      NA
+## [2,]     0.5924 0.4316 0.7355    1.383 0.5855 3.267 0.7394  0.4597
 ## 
 ## $axesScale
 ##      centerProb liProb uiProb centerOR   liOR  uiOR    zstat p_value
-## [1,]     0.4868 0.3304 0.6458       NA     NA    NA       NA      NA
-## [2,]     0.4805 0.3422 0.6218   0.9751 0.4157 2.287 -0.05794  0.9538
+## [1,]     0.4868 0.3269 0.6495       NA     NA    NA       NA      NA
+## [2,]     0.4805 0.3390 0.6252    0.975 0.4067 2.337 -0.05666  0.9548
 ## 
 ## $axesLabel
 ##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.6541 0.5066 0.7770       NA     NA    NA     NA      NA
-## [2,]     0.4989 0.3594 0.6385   0.5263 0.2321 1.193 -1.537  0.1244
+## [1,]     0.6541 0.5032 0.7792       NA     NA    NA     NA      NA
+## [2,]     0.4989 0.3560 0.6419   0.5265 0.2274 1.219 -1.497  0.1343
 ## 
 ## $outlier
 ##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.6250 0.4764 0.7532       NA     NA    NA     NA      NA
-## [2,]     0.4402 0.2891 0.6033   0.4719 0.1957 1.138 -1.672 0.09444
+## [1,]     0.6250 0.4734 0.7555       NA     NA    NA     NA      NA
+## [2,]     0.4402 0.2858 0.6072   0.4719 0.1917 1.162 -1.634  0.1023
 ## 
 ## $lowess
-##      centerProb liProb uiProb centerOR   liOR  uiOR  zstat p_value
-## [1,]     0.4906 0.3504 0.6322       NA     NA    NA     NA      NA
-## [2,]     0.5052 0.3622 0.6473     1.06 0.4739 2.372 0.1425  0.8867
+##      centerProb liProb uiProb centerOR   liOR uiOR  zstat p_value
+## [1,]     0.4906 0.3467 0.6360       NA     NA   NA     NA      NA
+## [2,]     0.5052 0.3588 0.6507     1.06 0.4626 2.43 0.1384  0.8899
 ```
 
 
