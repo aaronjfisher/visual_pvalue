@@ -35,7 +35,7 @@ Notes
 
 
 
-Some Summary Statistics
+Summary Statistics
 ----------------
 * 2,039 users submitted responses.
 * 19,593 responses were submitted, overall.
