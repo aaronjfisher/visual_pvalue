@@ -1,0 +1,186 @@
+Generate plots to be shown to Coursera users
+=====================
+
+This script can be used to generate the pngs shown to users, and also the "data_for_1plots_coursera" file.
+
+Here we're using 9 questions from 8 categories (including the "outlier" category of plots). Each of the 8 cateogries has 10 versions people can see, half are significant half are not. The categories are: small n (n=35), medium n (n=100) (reference), large sample (n=200), best fit lines, axis scale, axis labels, & outlier points.
+
+All p-values are fixed to either be in the range (0.023-0.025) or be in the range (0.33-0.35). We initially neglected the fact that adding an outlier to plots generated in this way (for the "outlier" category) would result in a p-value outside of these ranges. As a result, accuracy rates for "outlier" plots were not directly compared against the reference category in our final analysis (see supplementary materials pdf file).
+
+However, when we planned to use the outlier category, we also decided to remove outliers along the x-asis of all plots, so that only plots in the outlier category would tend to have outlying points. We removed outlying X coordinates by generating 10 extra X coordinates, and then triming off the bottom and top 5.
+
+Saving the plots is currently commented out in this file.
+
+
+
+```r
+seedForPlots<-234032
+set.seed(seedForPlots)
+
+#Intro question:
+setwd("/Users/aaronfisher/Documents/JH/EDA Versions/EDA Git Repo/Coursera")
+
+nversions<-5 #how many iterations should we do for each combination of significance and plot category.
+
+#Make vectors to store the p-value bin, category and version number of all the unique questions.
+#All p-values will be between .023-.025, or .33-.35 (the outlier points ended up violating this rule).
+# We simulate until we get a p-value in the appropriate bin. 
+# Note: In the shiny application, which we created afterwards, we used the more elegant solution of binary search to get the appropriate p-value.
+pbreaks<-c(.023,.025,.33,.35,1)
+pbins.base<-rep(c(2,4),times=8) #used as an index later on for pbreaks variable
+nes.base<-c(35,35,100,100,200,200,rep(100,times=10)) #10 points will be added in the generation process and the ten extreme points will be trimmed off
+pres.base<-(rep(c('n35','n100ref','n200','bestFit','axesScale','axesLabel','outlier','lowess'),each=2))
+pbins<-rep(pbins.base,each=nversions)
+nes<-rep(nes.base,each=nversions)
+pres<-rep(pres.base,each=nversions)
+
+version.base<-rep(1:nversions) #Note, divide by two because sig and nonsig are two different versions
+probnum.base<-c('1-1','1-2','2','3',paste0(rep(4:9,each=2),rep(c('-1','-2'),times=5))) #for labelling plots.
+version<-rep(version.base,times=length(pbins.base))  
+probnum<-rep(probnum.base,each=nversions) 
+
+
+cbind(pbreaks[pbins],nes,pres,version)
+
+nreps<-length(pbins)
+
+#Matrixes to hold X coordinates, random errors, and Y coordinates, across all plots.
+yes<-matrix(nrow=nreps,ncol=max(nes))
+xes<-matrix(nrow=nreps,ncol=max(nes))
+ees<-matrix(nrow=nreps,ncol=max(nes))
+resids<-matrix(nrow=nreps,ncol=max(nes))
+
+#initialize variables that will store the p-values of each plot
+pvals<-rep(0,nreps)
+tvals<-rep(0,nreps)
+bhat.theory<-rep(0,nreps)
+bhat.emp<-rep(0,nreps) #compare the fitted slope coefficient we got with the one we used to generate each plot (bhat.theory)
+
+#First make basic data
+#then add outliers
+
+print(paste('nreps = ',nreps))
+pb<-txtProgressBar(min = 1, max = nreps,  char = "=", style = 3)  #This progress bar won't show up in the knitr output, as this chunk has it's results hidden.
+
+for(i in 1:nreps){
+	tryagain<-TRUE
+	while(tryagain){ #repeat until we get a p-value in the desired bin
+		n<-nes[i]
+		#calculate t-value close to what we want
+		t.i<-qt(pbreaks[pbins[i]]/2,df=n-2,lower.tail=F)
+		if(abs(t.i)>5) t.i<-0 #guards against when the bin is 1, and quantile has infinite size
+		#Add & Trim X coordinates
+		x.pre<-rnorm(n +10)
+		x<-x.pre[order(x.pre)[6:(length(x.pre)-5)] ] #trim off extra x's
+		e<-rnorm(n)
+		bhat<-t.i*sd(e)/(sqrt(n)*sd(x)) #sd(e)=true σ, sqrt(n)*sd(x) = Σ[(x-bar(x))^2]
+    #In previous iterations of this code, we had it set up to sometimes generate from an actual null (true slope coefficient=0). Below, we disable that option with the added FALSE statement, but we can't get rid of it completely or it will change the seed of the random numbers we generate later on.
+		if(FALSE & pbreaks[pbins[i]]>.5 & sample(c(2,2,1),1)==2) {bhat<-0}
+		y<-x*bhat*sample(c(-1,1),1)+e
+		
+		bhat.theory[i]<-bhat
+		bhat.emp[i]<-summary(lm(y~x))$coeff[2,1]
+		tvals[i]<-summary(lm(y~x))$coeff[2,3]
+		pvals[i]<-summary(lm(y~x))$coeff[2,4]
+		xes[i,1:n]<-x
+		yes[i,1:n]<-y
+    ees[i,1:n]<-e
+    resids[i,1:n]<-summary(lm(y~x))$resid
+    
+		pi<-pvals[i]
+		bini<-min(which(pi<pbreaks))
+		if(bini==pbins[i]) tryagain<-FALSE
+		
+	}	
+	setTxtProgressBar(pb,i) 
+}
+```
+
+
+
+Add an outlier point to each plot in the outlier category
+
+
+```r
+# For significant plots, outliers are added to the corners.
+# For nonsignificant plots, outliers are added above the center of the point cloud.
+
+for(i in which(pres=='outlier')){
+  	n<-nes[i]
+  	x<-xes[i,1:n]
+  	y<-yes[i,1:n]
+
+    sig.i<-pvals[i]<.05
+  	#grab the middle point from x and y
+  	mx<-rep(mean(x),n)
+  	my<-rep(mean(y),n)
+  	distvec<-sqrt((mx-x)^2+(my-y)^2)
+  	switch<-which(distvec==min(distvec))
+  	
+    # We put the outlier in one of the upper corners, depending on the slope of the best fit line.
+    #case1: #sig slope going down
+  	if(tvals[i]<0 & sig.i) { 
+  		x[switch]<-min(x)-sd(x)
+  		y[switch]<-max(y)+sd(y)
+  	}
+  	#case2: sig slope going up
+  	if(tvals[i]>0 & sig.i) { 
+  		x[switch]<-max(x)+sd(x)
+  		y[switch]<-max(y)+sd(y)
+  	}
+  	#case3: flat slope -> move it above the center of the point cloud.
+    if(!sig.i){
+      y[switch]<-max(y)+sd(y)*sqrt(2) #sqrt 2 makes it the same distance is in cases 1 and 2.
+    }
+  
+  	tvals[i]<-summary(lm(y~x))$coeff[2,3]
+  	pvals[i]<-summary(lm(y~x))$coeff[2,4]
+
+	xes[i,1:n]<-x
+	yes[i,1:n]<-y
+
+	#NOTE - We do *not* update bhat for the outlier plots
+}
+
+#save progress (commented out)
+#save(list=c('xes','yes','nreps','pbins','pvals','tvals','nes','pres'),file='data_for_1plots_coursera.RData')
+#load('data_for_1plots_coursera.RData')
+```
+
+The following code can be used to generate the plot image files shown to users.
+
+
+```r
+#Generate Plots
+
+#To reduce
+for(i in 1:nreps){
+  n<-nes[i]
+  x<-xes[i,1:n]
+  y<-yes[i,1:n]
+  pval<-pvals[i]
+  tval<-tvals[i]
+  m<-lm(y~x)
+  style<-pres[i]
+
+  t2<-'Data'
+  if(style=='lowess') t2<-'with Lowess Line'
+  if(style=='bestFit') t2<-'with OLS Best Fit Line'
+  title<-paste('Sample ',t2,sep='')
+  xl<-paste("Cranial Electrode",floor(runif(1,11,44)),"(Standardized)")
+  yl<-paste("Cranial Electrode",floor(runif(1,53,97)),"(Standardized)")
+  
+  #Saving plots is commented out
+  #png(paste0("pvalue plot images/coursera2_#",probnum[i],'_datVer-',version[i],'_',pres[i],'_pval-',round(pvals[i],digits=3),".png"), width = 400, height = 400)
+    par(mfrow=c(1,1))
+  	plot(x,y,xlab='X',ylab='Y',main=title)
+  	if(style=='lowess') lines(lowess(x,y))
+  	if(style=='bestFit') abline(m$coef)
+  	if(style=='axesScale')plot(x,y,xlab='X',ylab='Y',main=title,xlim=c(min(x)-1.5*sd(x),max(x)+1.5*sd(x)),ylim=c(min(y)-1.5*sd(y),max(y)+1.5*sd(y)))
+ 
+  	if(style=='axesLabel') plot(x,y,xlab=xl,ylab=yl,main=title)
+  #dev.off()
+}
+```
+
+
