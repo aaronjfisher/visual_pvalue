@@ -1,7 +1,7 @@
 Organization
 ----------------
 * analyze_pvalue_data.Rmd contains code for our analysis
-* coursera_user_responses.csv contains all user responses to the survey (see code book below)
+* coursera_user_responses_tidy.csv contains all user responses to the survey (see code book below)
 * data_for_1plots_coursera.RData contains objects used in creating the plots shown to users.
 
 

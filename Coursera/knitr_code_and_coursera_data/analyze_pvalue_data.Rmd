@@ -10,10 +10,10 @@ This report was created using the knitr package (http://yihui.name/knitr/) in R 
 library(plotrix) 
 library(lme4)
 
-x_full<-read.csv('coursera_user_responses.csv',header=TRUE) #user responses to coursera questions.
 opts_chunk$set(dev = 'pdf')
 
 #The code book for the two files below is included in the readMe files of the github repository.
+x_full<-read.csv('coursera_user_responses_tidy.csv',header=TRUE) #user responses to coursera questions.
 load('data_for_1plots_coursera.RData')  #objects describing the library of plots shown to users.
 
 logit<-function(x) log(x/(1-x))
