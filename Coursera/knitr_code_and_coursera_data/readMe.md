@@ -27,6 +27,20 @@ Each row of the csv corresponds to one question shown to a user, with:
 * qNameCoursera = An single identifier that uniquely identifies the question, combining the information of "style," "trueSig," and "datVer". This identifier was built by the Coursera system, and ranges from Q-0 to Q-79.
 
 
+Code Book for data_for_1plots_coursera.RData
+----------------
+This RData file contains eight R objects describing the library of plots that could be shown to users.
+
+* `nreps` = 80, the size of the library.
+* `nes` = a vector of length 80, telling the sample size used for each plot in the library.
+* `pres` = a vector of length 80, telling the category of each plot. The naming convention is the same as in the style variable, in the "coursera_user_responses.csv" file.
+* `pvals` = a vector of length 80, telling the p-value of each plot.
+* `tvals` = a vector of length 80, telling the t-statistic of each plot.
+The remaining two objects are for internal use.
+* `xes` = a matrix of size (80 by 200). The rows contain the X coordinates for points shown in each plot of the library. In each row, there will be several NAs due to the fact that not all plots have the same sample size. For example, `xes[2,]` will have `nes[2]` non-NA values, and `200-nes[2]` NA values.
+* `yes` = a matrix of size (80 by 200). The rows contain the Y coordinates for points shown in each plot of the library. In each row, there will be several NAs due to the fact that not all plots have the same sample size.
+* `pbins` = for internal use. This variable is essentially a binned version of the `pres` object.
+
 
 Notes
 ----------------
