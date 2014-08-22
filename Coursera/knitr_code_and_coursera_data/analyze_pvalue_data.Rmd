@@ -26,7 +26,7 @@ invLogit<-function(x) {
 ```
 
 ```{r process-csv, results='hide', message=FALSE}
-#Output from this section has been masked)
+#Output from this section has been masked
 
 #Process x_full
 
@@ -117,14 +117,34 @@ get_var_explained_by_rand_int(glmmSpec)
 ```
 
 
-Get confidence intervals and plot results
-```{r figure1, fig.width=7, fig.height=6}
+Recreate two examples of plots shown to users.
 
-#Generate Figure 1
+```{r example_ref_plots, fig.height=5.005, fig.width=10.22}
 
+
+par(mar=c(3,3.5,3,0),oma=c(1,.5,0,1),mfcol=c(1,2))
+
+#Make example plots from the reference category, one significant and one not
+plotSigRefInd<-which(pres=='n100ref'&pvals<.05)[4]
+plotNotSigRefInd<-which(pres=='n100ref'&pvals>=.05)[4]
+
+plot(xes[plotSigRefInd,],yes[plotSigRefInd,],xlab='',ylab='')
+mtext(paste0('Example: Truly Significant Plot\n(p=',round(pvals[plotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
+mtext('X',1,line=2)
+mtext('Y',2,line=2.5)
+
+plot(xes[plotNotSigRefInd,],yes[plotNotSigRefInd,],xlab='',ylab='')
+mtext(paste0('Example: Non-significant Plot\n(p=',round(pvals[plotNotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
+mtext('X',1,line=2)
+
+```
+
+Get confidence intervals and plot results.
+
+```{r accuracy_CIs, fig.height=5.229, fig.width=9.5}
 #Function for generating confidence intervals for the fitted accuracy rates for each plot style;
 #This function is meant to be used separately, for both the sensitivity and specificity models
-getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,axisLab=TRUE,cex.axis=1, ...){ #y can also be specificity
+getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,axisLab=TRUE,cex.axis=1,offset=0, ref_lwd=2, ...){ #y can also be specificity
   #diag(vcov(model))
 	#fixef(model)
 	
@@ -153,47 +173,26 @@ getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,ax
 	}	
 
 	if(plotIt){
-		plotCI(x=center[plotInd]*100,y=(length(plotInd)):1,ui=ui[plotInd]*100,li=li[plotInd]*100,pch=19,cex=.5,yaxt='n',err='x',ylab='', ...)
+		plotCI(x=center[plotInd]*100,y=offset+(length(plotInd)):1,ui=ui[plotInd]*100,li=li[plotInd]*100,pch=19,cex=.5,yaxt='n',err='x',ylab='', ...)
 		if(axisLab) axis(2, at=1:(length(plotInd)), labels=pretty_style_labels[plotInd][(length(plotInd)):1],cex.axis=cex.axis,las=2) #need to reorder labels so they go down, not up
-		abline(v=center[1]*100,lty=2,col='darkgray')
+		abline(v=center[1]*100,lty=2,lwd=ref_lwd)
 	}
 	
 	return(cbind(center,ui,li,modelCoef))
 }
 
-########
-#Generate Figure 1
-
-par(mar=c(5,2,1,1),oma=c(1,7,5,1))
-layoutMat<-cbind(rep(c(1,3),c(4,3)),rep(c(2,4),c(4,3)))
-layout(layoutMat)
-
-#Make example plots from the reference category, one significant and one not
-plotSigRefInd<-which(pres=='n100ref'&pvals<.05)[4]
-plotNotSigRefInd<-which(pres=='n100ref'&pvals>=.05)[4]
-
-plot(xes[plotSigRefInd,],yes[plotSigRefInd,],xlab='',ylab='')
-mtext('Truly Significant Plots',3,line=3,font=2,cex=1.3)
-mtext(paste0('Sample Plot (p=',round(pvals[plotSigRefInd],3),')'),3,line=.2,font=1)
-mtext('X',1,line=2)
-mtext('Y',2,line=2.5)
-
-plot(xes[plotNotSigRefInd,],yes[plotNotSigRefInd,],xlab='',ylab='')
-mtext('Non-significant Plots',3,line=3,font=2,cex=1.3)
-mtext(paste0('Sample Plot (p=',round(pvals[plotNotSigRefInd],3),')'),3,line=.2,font=1)
-mtext('X',1,line=2)
 
 #plot confidence intervals for fitted accuracy
-plotInd4CIfig_pre<-order(fixef(glmmSense)) #order plots by sense coef
+par(oma=c(0,4,0,0))
+plotInd4CIfig_pre<-c(1,order(fixef(glmmSense)[-1])+1) #order plots by sense coef, not including ref category
 plotInd4CIfig<-plotInd4CIfig_pre[plotInd4CIfig_pre!=7] #dropping outlier from plot
-getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(0,100),cex.axis=1.4,lwd=2)
-mtext('% Accuracy (Sensitivity)', side=3, line=.2)
-abline(h=4.5,lty=1,col='darkgray')
-abline(h=5.5,lty=1,col='darkgray')
-getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xlab='',xlim=c(0,100),lwd=2)
-abline(h=4.5,lty=1,col='darkgray')
-abline(h=5.5,lty=1,col='darkgray')
-mtext('% Accuracy (Specificity)', side=3, line=.2)
+getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(0,100),cex.axis=1.1,lwd=2,offset=.125,ylim=c(.8,7.2))
+mtext('% Accuracy', side=1, line=2,cex=1.1)
+mtext('Accuracy of Significance Classifications', side=3, line=.4,cex=1.2,font=2)
+getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xlab='',xlim=c(0,100),lwd=2,add=TRUE,offset=-.125)
+abline(v=seq(0,100,by=20),col='darkgray',lty=2,lwd=2)
+legend('bottomleft',c('Sensitivity', 'Specificity'),col=c('darkblue','darkred'),pch=19,bg='white')
+
 ```
 
 
@@ -251,7 +250,7 @@ get_var_explained_by_rand_int(glmmSpecLearn_rIntercept)
 #Get CIs for learning models
 # Get confidence intervals for the fitted accuracy rates for each combination of style and attempt number in the learning model. 
 # Also get confidence intervals for odds ratios for the learning effect in each category.
-# To get interpretation of effect of attemptNo, we need to add attemptNum coeff to interaction terms. 
+# To get interpretation of effect of attemptNum, we need to add attemptNum coeff to interaction terms. 
 #Negative interaction just means that the learning effect is less strong than in the reference category.
 #The function below returns a list of CI matrixes for each style, with rows for attemptNum.
 getCIlearn<-function(model,ci_width_scalar=1.96,test_type='two_sided'){    
@@ -324,76 +323,56 @@ getCIlearn(glmmSpecLearn_rIntercept)
 
 ```
 
-Generate Figure 2
+Display results for learning.
 
-```{r figure2}
+```{r learning_accuracy, fig.width=9.175,fig.height=6.3958}
 
 
-#Make figure 2
 
-#Function for adding jittered background points to a plot.
-plot_pts_for_CI_plot <- function(plotStyle='n100ref',type='sense',data=multi_try_data,cut=cut,jit_factor_x=1.2,jit_factor_y=1.2,y2lab,...){
-  #style %in% plotStyle lets us use the same function for an aggregate plot
-	ind1<- data$attemptNum <= cut
-	ind2<- !data$trueSig
-	if(type=='sense') ind2 <- data$trueSig
-	ind3<-data$style %in% plotStyle
-	d<- data[ind1 & ind2 & ind3,]
-	plot(jitter(d$attemptNum,factor=jit_factor_x),jitter(d$correct+0,factor=jit_factor_y),col='darkgray',cex=.5,xaxt='n',yaxt='n', ...)
-	axis(4,at=0:1,labels=y2lab,cex.axis=1.2)
-}
-
-#Function for adding CIs to a plot (CIs for accuracy)
-add2plot_LearnCImats<-function(ciMat, ...){
+#Plotting (CIs for accuracy)
+plot_LearnCImats<-function(ciMat,plotStyle='n100ref',type='sense',data=multi_try_data,offset=0,cex.axis=1.1,add=FALSE, ...){
 	cut<-dim(ciMat)[1]
-	plotCI(x=1:cut,y=ciMat[,'centerProb'],ui=ciMat[,'uiProb'],li=ciMat[,'liProb'],pch=19,cex=.5,add=TRUE, ...)
-	axis(1, at=(1:cut), labels=1:cut) #need to reorder labels so they go down, not up
-	yLabels<-seq(0,1,length=6)
-	axis(2, at=yLabels, labels=yLabels) #need to reorder labels so they go down, not up
-	abline(h=.5,lty=2,col='darkgray')	
+	thickness<-c(2,2)
+  
+  
+	plotCI(x=ciMat[,'centerProb'],y=1:cut+offset,ui=ciMat[,'uiProb'],li=ciMat[,'liProb'],err='x',pch=19,cex=.5,xaxt='n',yaxt='n',lwd=thickness,xlim=c(-.05,1.05),ylim=c(.7,cut+.3),add=add, ...)
+	if(add==FALSE){
+    axis(2, at=(1:cut), labels=1:cut,cex.axis=cex.axis) #need to reorder labels so they go down, not up
+  	xLabels<-seq(0,1,length=6)
+  	axis(1, at=xLabels, labels=xLabels*100,cex.axis=cex.axis) #need to reorder labels so they go down, not up
+  	abline(v=seq(0,1,by=.2),lty=2,lwd=2,col='darkgray')	
+    mtext(text='Attempt\nNumber',side=2,line=2.25,cex=cex.axis)
+  }
 }
 
-#SENSE
-ciMat_learn_sense<-getCIlearn(glmmSenseLearn_rIntercept)
 
-par(mfrow=c(2,3),mar=c(4,3,2,1),oma=c(3,3,3,3))
-plot_pts_for_CI_plot(plotStyle='n100ref',type='sense',cut=cut,jit_factor_x=1,jit_factor_y=1,y2lab=c('',''),xlab='',ylab='')
-add2plot_LearnCImats(ciMat_learn_sense[['n100ref']],col='darkblue',lwd=2)
-mtext(text='% Accuracy (Sensitivity)',side=2,line=2.5,cex=.85)
-mtext(text='Reference',side=3,line=2.5,font=2)
-mtext(text='Truly Significant',side=3,line=0.2,cex=.899)
 
-plot_pts_for_CI_plot(plotStyle='n35',type='sense',cut=cut,jit_factor_x=1,jit_factor_y=1,y2lab=c('',''),ylab='',xlab='')
-add2plot_LearnCImats(ciMat_learn_sense[['n35']],main='Lower n',col='darkblue',lwd=2)
-mtext(text='Lower n',side=3,line=2.5,font=2)
-mtext(text='Truly Significant',side=3,line=0.2,cex=.899)
-
-plot_pts_for_CI_plot(plotStyle='bestFit',type='sense',cut=cut,jit_factor_x=1,jit_factor_y=1,xlab='',ylab='',y2lab=c('Guess Not Sig','Guess Sig'))
-add2plot_LearnCImats(ciMat_learn_sense[['bestFit']],main='Best-fit Line',col='darkblue',ylab='',lwd=2,xlab='')
-mtext(text='Best Fit',side=3,line=2.5,font=2)
-mtext(text='Truly Significant',side=3,line=0.2,cex=.899)
+ciMat_learn_sense <- getCIlearn(glmmSenseLearn_rIntercept)
+ciMat_learn_spec  <- getCIlearn(glmmSpecLearn_rIntercept)
 
 
 
-#SPEC
-ciMat_learn_spec<-getCIlearn(glmmSpecLearn_rIntercept)
 
-plot_pts_for_CI_plot(plotStyle='n100ref',type='spec',xlab='',ylab='',cut=cut,jit_factor_x=1,jit_factor_y=1,y2lab=c('',''))
-add2plot_LearnCImats(ciMat_learn_spec[['n100ref']],main='',col='darkred',ylab='Specificity',ylim=c(-.2,1.2),xlim=c(.5,cut+.5),lwd=2)
-mtext(text='Not Significant',side=3,line=0.2,cex=.899)
-mtext(text='% Accuracy (Specificity)',side=2,line=2.5,cex=.85)
-mtext(text='Attempt Number',side=1,line=2.5,cex=.85)
+par(mfrow=c(3,1),mar=c(2,7,3,1),oma=c(3,0,0,0))
 
-plot_pts_for_CI_plot(plotStyle='n35',type='spec',xlab='',ylab='',cut=cut,jit_factor_x=1,jit_factor_y=1,y2lab=c('',''))
-add2plot_LearnCImats(ciMat_learn_spec[['n35']],main='',col='darkred',ylab='',ylim=c(-.2,1.2),xlim=c(.5,cut+.5),lwd=2)
-mtext(text='Not Significant ',side=3,line=0.2,cex=.899)
-mtext(text='Attempt Number',side=1,line=2.5,cex=.85)
+#REFERENCE
+plot_LearnCImats(ciMat_learn_sense[['n100ref']],col='darkblue',plotStyle='n100ref',type='sense',xlab='',ylab='',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['n100ref']],main='',col='darkred',plotStyle='n100ref',type='spec',xlab='',add=TRUE,offset=-.125)
+mtext(text='Reference',side=3,line=.4,cex=1.2,font=2)
 
-plot_pts_for_CI_plot(plotStyle='bestFit',type='spec',main='',xlab='',cut=cut,jit_factor_x=1,jit_factor_y=1,ylab='',y2lab=c('Guess Sig','Guess Not Sig'))
-add2plot_LearnCImats(ciMat_learn_spec[['bestFit']],main='',col='darkred',lwd=2)
-mtext(text='Not Significant ',side=3,line=0.2,cex=.899)
-mtext(text='Attempt Number',side=1,line=2.5,cex=.85)
+legend('topleft',c('Sensitivity', 'Specificity'),col=c('darkblue','darkred'),pch=19,cex=1.4,bg='white')
 
+#SMALL N
+plot_LearnCImats(ciMat_learn_sense[['n35']],col='darkblue',plotStyle='n35',type='sense',ylab='',xlab='',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['n35']],main='',col='darkred',plotStyle='n35',type='spec',xlab='',ylab='',offset=-.125,add=TRUE)
+mtext(text='Smaller n',side=3,line=.4,cex=1.2,font=2)
+
+#BEST FIT
+plot_LearnCImats(ciMat_learn_sense[['bestFit']],col='darkblue',ylab='',xlab='',plotStyle='bestFit',type='sense',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['bestFit']],main='',col='darkred',plotStyle='bestFit',type='spec',xlab='',offset=-.125,add=TRUE)
+mtext(text='Best Fit',side=3,line=.4,cex=1.2,font=2)
+
+mtext(text='% Accuracy',side=1,line=3,cex=1.1)
 
 
 
