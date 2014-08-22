@@ -57,6 +57,16 @@ nStyle
 uStyle
 pretty_style_labels<-c('Reference','Smaller n','Larger n', 'Best Fit','Axis Scale', 'Axis Label', 'Outlier','Lowess') #for use in plots
 
+
+######### How many users finished their first attempts of the quiz
+    ## this section is commented out, as it runs fairly slowly.
+# userNames<-unique(x$id)
+# num_of_first_try_by_user<-rep(NA,n)
+# for(i in 1:n){
+#   num_of_first_try_by_user[i]<- sum(x$id==userNames[i] & x$attemptNum==1)
+# }
+# mean(num_of_first_try_by_user==9) #=.944
+#########
 ```
 
 Models for Baseline Accuracy, and Effect of Plot Presentation Style
@@ -197,9 +207,22 @@ users_with_multiple_tries<- unique(x$id[x$attemptNum>1])
 multi_try_data_ind<-x$id %in% users_with_multiple_tries 
 multi_try_data<-x[multi_try_data_ind& x$firstTry,]
 
-
 #Calculate the percent of second attempts were discarded because users saw a duplicate plot
 1-sum(multi_try_data_ind& x$firstTry)/sum(multi_try_data_ind)
+
+
+########  Of users with multiple attempts, how many compeleted their first & second attempts?
+userNames2<-unique(x[multi_try_data_ind,'id'])
+multi_users_1st_tries<-
+multi_users_2nd_tries<-rep(NA,length(userNames2))
+for(i in 1:length(userNames2)){
+  multi_users_2nd_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] & x[multi_try_data_ind,'attemptNum']==2)
+  multi_users_1st_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] & x[multi_try_data_ind,'attemptNum']==1)
+}
+mean(multi_users_1st_tries==9) #=.92
+mean(multi_users_2nd_tries==9) #=.99
+########
+
 
 cut=2 #cutoff point for max # of tries in our model (only look at first and second attempts)
 multi_try_data_sense_leq_cut<- multi_try_data[multi_try_data$attemptNum<=cut & multi_try_data$trueSig,]
