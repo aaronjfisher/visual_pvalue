@@ -10,13 +10,7 @@ This report was created using the knitr package (http://yihui.name/knitr/) in R 
 
 library(plotrix) 
 library(lme4)
-```
 
-```
-## Warning: package 'lme4' was built under R version 3.1.1
-```
-
-```r
 opts_chunk$set(dev = 'pdf')
 
 #The code book for the two files below is included in the readMe files of the github repository.
