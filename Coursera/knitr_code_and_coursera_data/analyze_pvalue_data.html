@@ -188,11 +188,15 @@ hljs.initHighlightingOnLoad();
 
 library(plotrix) 
 library(lme4)
+</code></pre>
 
-opts_chunk$set(dev = &#39;pdf&#39;)
+<pre><code>## Warning: package &#39;lme4&#39; was built under R version 3.1.1
+</code></pre>
+
+<pre><code class="r">opts_chunk$set(dev = &#39;pdf&#39;)
 
 #The code book for the two files below is included in the readMe files of the github repository.
-x_full&lt;-read.csv(&#39;tidyCourseraPval.csv&#39;,header=TRUE) #user responses to coursera questions.
+x_full&lt;-read.csv(&#39;coursera_user_responses_tidy.csv&#39;,header=TRUE) #user responses to coursera questions.
 load(&#39;data_for_1plots_coursera.RData&#39;)  #objects describing the library of plots shown to users.
 
 logit&lt;-function(x) log(x/(1-x))
@@ -268,25 +272,15 @@ sum(attemptNum1Data$trueSig) # number of responses used in sense model = 9063
 </code></pre>
 
 <pre><code class="r">glmmSense = glmer(correct ~ 1 + (1|id) + style,data=attemptNum1Data[attemptNum1Data$trueSig,],family=&quot;binomial&quot;) #Sensitivity model
-</code></pre>
+glmmSpec = glmer(correct ~ 1 + (1|id) + style,data=attemptNum1Data[!attemptNum1Data$trueSig,],family=&quot;binomial&quot;) #Specificity model
 
-<pre><code>## Warning: Model failed to converge with max|grad| = 0.039379 (tol = 0.001)
-</code></pre>
-
-<pre><code class="r">glmmSpec = glmer(correct ~ 1 + (1|id) + style,data=attemptNum1Data[!attemptNum1Data$trueSig,],family=&quot;binomial&quot;) #Specificity model
-</code></pre>
-
-<pre><code>## Warning: Model failed to converge with max|grad| = 0.00643088 (tol =
-## 0.001)
-</code></pre>
-
-<pre><code class="r">#Show basic output
+#Show basic output
 print(glmmSense,correlation=FALSE)
 </code></pre>
 
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
-##  Family: binomial ( logit )
+##  Family: binomial  ( logit )
 ## Formula: correct ~ 1 + (1 | id) + style
 ##    Data: attemptNum1Data[attemptNum1Data$trueSig, ]
 ##      AIC      BIC   logLik deviance df.resid 
@@ -294,7 +288,7 @@ print(glmmSense,correlation=FALSE)
 ## Random effects:
 ##  Groups Name        Std.Dev.
 ##  id     (Intercept) 0.63    
-## Number of obs: 9063, groups: id, 2036
+## Number of obs: 9063, groups:  id, 2036
 ## Fixed Effects:
 ##    (Intercept)        stylen35       stylen200    stylebestFit  
 ##         -0.103          -0.789          -0.116           0.480  
@@ -307,7 +301,7 @@ print(glmmSense,correlation=FALSE)
 
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
-##  Family: binomial ( logit )
+##  Family: binomial  ( logit )
 ## Formula: correct ~ 1 + (1 | id) + style
 ##    Data: attemptNum1Data[!attemptNum1Data$trueSig, ]
 ##      AIC      BIC   logLik deviance df.resid 
@@ -315,7 +309,7 @@ print(glmmSense,correlation=FALSE)
 ## Random effects:
 ##  Groups Name        Std.Dev.
 ##  id     (Intercept) 0.765   
-## Number of obs: 9032, groups: id, 2032
+## Number of obs: 9032, groups:  id, 2032
 ## Fixed Effects:
 ##    (Intercept)        stylen35       stylen200    stylebestFit  
 ##          1.076           0.522          -1.139          -0.511  
@@ -537,7 +531,8 @@ dim(multi_try_data_sense_leq_cut) #846 = # responses in model
   data=multi_try_data_sense_leq_cut, family=&quot;binomial&quot;) # Fit model with interaction terms
 </code></pre>
 
-<pre><code>## Warning: Model failed to converge with max|grad| = 0.147369 (tol = 0.001)
+<pre><code>## Warning: Model failed to converge with max|grad| = 0.0116144 (tol = 0.001,
+## component 13)
 </code></pre>
 
 <pre><code class="r">print(glmmSenseLearn_rIntercept,correlation=FALSE)
@@ -545,7 +540,7 @@ dim(multi_try_data_sense_leq_cut) #846 = # responses in model
 
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
-##  Family: binomial ( logit )
+##  Family: binomial  ( logit )
 ## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style
 ##    Data: multi_try_data_sense_leq_cut
 ##      AIC      BIC   logLik deviance df.resid 
@@ -553,7 +548,7 @@ dim(multi_try_data_sense_leq_cut) #846 = # responses in model
 ## Random effects:
 ##  Groups Name        Std.Dev.
 ##  id     (Intercept) 0.383   
-## Number of obs: 846, groups: id, 101
+## Number of obs: 846, groups:  id, 101
 ## Fixed Effects:
 ##                      (Intercept)                 attemptNumFactor2  
 ##                           -0.475                             1.656  
@@ -581,18 +576,12 @@ dim(multi_try_data_sense_leq_cut) #846 = # responses in model
 
 <pre><code class="r">glmmSpecLearn_rIntercept = glmer(correct ~ 1 +  (1|id) + attemptNumFactor*style,
     data=multi_try_data_spec_leq_cut, family=&quot;binomial&quot;) #
-</code></pre>
-
-<pre><code>## Warning: Model failed to converge with max|grad| = 0.00275478 (tol =
-## 0.001)
-</code></pre>
-
-<pre><code class="r">print(glmmSpecLearn_rIntercept,correlation=FALSE) 
+print(glmmSpecLearn_rIntercept,correlation=FALSE) 
 </code></pre>
 
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
-##  Family: binomial ( logit )
+##  Family: binomial  ( logit )
 ## Formula: correct ~ 1 + (1 | id) + attemptNumFactor * style
 ##    Data: multi_try_data_spec_leq_cut
 ##      AIC      BIC   logLik deviance df.resid 
@@ -600,7 +589,7 @@ dim(multi_try_data_sense_leq_cut) #846 = # responses in model
 ## Random effects:
 ##  Groups Name        Std.Dev.
 ##  id     (Intercept) 0.668   
-## Number of obs: 859, groups: id, 101
+## Number of obs: 859, groups:  id, 101
 ## Fixed Effects:
 ##                      (Intercept)                 attemptNumFactor2  
 ##                          0.77087                          -0.02719  
