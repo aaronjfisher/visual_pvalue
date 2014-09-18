@@ -385,10 +385,12 @@ plot(xes[plotSigRefInd,],yes[plotSigRefInd,],xlab=&#39;&#39;,ylab=&#39;&#39;)
 mtext(paste0(&#39;Example: Truly Significant Plot\n(p=&#39;,round(pvals[plotSigRefInd],3),&#39;)&#39;),3,line=.4,font=2,cex=1.2)
 mtext(&#39;X&#39;,1,line=2)
 mtext(&#39;Y&#39;,2,line=2.5)
+mtext(&#39;A)&#39;,3,line=1.5,adj=0,font=2,cex=1.2)
 
 plot(xes[plotNotSigRefInd,],yes[plotNotSigRefInd,],xlab=&#39;&#39;,ylab=&#39;&#39;)
 mtext(paste0(&#39;Example: Non-significant Plot\n(p=&#39;,round(pvals[plotNotSigRefInd],3),&#39;)&#39;),3,line=.4,font=2,cex=1.2)
 mtext(&#39;X&#39;,1,line=2)
+mtext(&#39;B)&#39;,3,line=1.5,adj=0,font=2,cex=1.2)
 </code></pre>
 
 <p><img src="figure/example_ref_plots.pdf" alt="plot of chunk example_ref_plots"/> </p>

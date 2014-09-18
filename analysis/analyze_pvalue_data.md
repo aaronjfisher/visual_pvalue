@@ -230,10 +230,12 @@ plot(xes[plotSigRefInd,],yes[plotSigRefInd,],xlab='',ylab='')
 mtext(paste0('Example: Truly Significant Plot\n(p=',round(pvals[plotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
 mtext('X',1,line=2)
 mtext('Y',2,line=2.5)
+mtext('A)',3,line=1.5,adj=0,font=2,cex=1.2)
 
 plot(xes[plotNotSigRefInd,],yes[plotNotSigRefInd,],xlab='',ylab='')
 mtext(paste0('Example: Non-significant Plot\n(p=',round(pvals[plotNotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
 mtext('X',1,line=2)
+mtext('B)',3,line=1.5,adj=0,font=2,cex=1.2)
 ```
 
 ![plot of chunk example_ref_plots](figure/example_ref_plots.pdf) 
