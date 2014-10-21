@@ -102,7 +102,10 @@ getORCIs<-function(model){
   fitted_OR<-exp(modelCoef) 
   li<- exp(modelCoef - qnorm(.975) * modelSe)
   ui<- exp(modelCoef + qnorm(.975) * modelSe)
-  kable(signif(cbind(fitted_OR,li,ui),3))
+
+  out<- signif(cbind(fitted_OR, li, ui),3)
+  rownames(out)<- pretty_style_labels
+  kable(out)
 }
 ```
 
@@ -194,7 +197,9 @@ getCIs<-function(model=glmmSense, plotInd=1:K, ci_width_scalar=1.96, plotIt=TRUE
 		abline(v=center[1]*100,lty=2,lwd=ref_lwd)
 	}
 	
-	return(kable(cbind(center,ui,li)))
+	out<- cbind(center,ui,li)
+	rownames(out)<- pretty_style_labels
+	return(kable(out))
 }
 
 

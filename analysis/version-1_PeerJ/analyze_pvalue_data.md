@@ -160,7 +160,10 @@ getORCIs<-function(model){
   fitted_OR<-exp(modelCoef) 
   li<- exp(modelCoef - qnorm(.975) * modelSe)
   ui<- exp(modelCoef + qnorm(.975) * modelSe)
-  kable(signif(cbind(fitted_OR,li,ui),3))
+
+  out<- signif(cbind(fitted_OR, li, ui),3)
+  rownames(out)<- pretty_style_labels
+  kable(out)
 }
 ```
 
@@ -174,16 +177,16 @@ getORCIs(glmmSense)
 
 
 
-|               | fitted_OR|    li|    ui|
-|:--------------|---------:|-----:|-----:|
-|(Intercept)    |     0.903| 0.820| 0.993|
-|stylen35       |     0.454| 0.384| 0.538|
-|stylen200      |     0.891| 0.759| 1.040|
-|stylebestFit   |     1.620| 1.370| 1.900|
-|styleaxesScale |     1.320| 1.120| 1.560|
-|styleaxesLabel |     1.020| 0.867| 1.190|
-|styleoutlier   |     2.750| 2.330| 3.260|
-|stylelowess    |     1.260| 1.070| 1.480|
+|           | fitted_OR|    li|    ui|
+|:----------|---------:|-----:|-----:|
+|Reference  |     0.903| 0.820| 0.993|
+|Smaller n  |     0.454| 0.384| 0.538|
+|Larger n   |     0.891| 0.759| 1.040|
+|Best Fit   |     1.620| 1.370| 1.900|
+|Axis Scale |     1.320| 1.120| 1.560|
+|Axis Label |     1.020| 0.867| 1.190|
+|Outlier    |     2.750| 2.330| 3.260|
+|Lowess     |     1.260| 1.070| 1.480|
 
 ```r
 getORCIs(glmmSpec)
@@ -191,16 +194,16 @@ getORCIs(glmmSpec)
 
 
 
-|               | fitted_OR|    li|    ui|
-|:--------------|---------:|-----:|-----:|
-|(Intercept)    |     2.930| 2.630| 3.270|
-|stylen35       |     1.690| 1.390| 2.040|
-|stylen200      |     0.320| 0.269| 0.381|
-|stylebestFit   |     0.600| 0.506| 0.713|
-|styleaxesScale |     0.670| 0.565| 0.795|
-|styleaxesLabel |     0.811| 0.680| 0.969|
-|styleoutlier   |     0.589| 0.495| 0.701|
-|stylelowess    |     0.700| 0.588| 0.833|
+|           | fitted_OR|    li|    ui|
+|:----------|---------:|-----:|-----:|
+|Reference  |     2.930| 2.630| 3.270|
+|Smaller n  |     1.690| 1.390| 2.040|
+|Larger n   |     0.320| 0.269| 0.381|
+|Best Fit   |     0.600| 0.506| 0.713|
+|Axis Scale |     0.670| 0.565| 0.795|
+|Axis Label |     0.811| 0.680| 0.969|
+|Outlier    |     0.589| 0.495| 0.701|
+|Lowess     |     0.700| 0.588| 0.833|
 
 ```r
 #Show variance explained by the random intercepts in each model
@@ -293,7 +296,9 @@ getCIs<-function(model=glmmSense, plotInd=1:K, ci_width_scalar=1.96, plotIt=TRUE
 		abline(v=center[1]*100,lty=2,lwd=ref_lwd)
 	}
 	
-	return(kable(cbind(center,ui,li)))
+	out<- cbind(center,ui,li)
+	rownames(out)<- pretty_style_labels
+	return(kable(out))
 }
 
 
@@ -307,16 +312,16 @@ getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(
 
 
 
-| center|     ui|     li|
-|------:|------:|------:|
-| 0.4744| 0.4982| 0.4507|
-| 0.2907| 0.3215| 0.2618|
-| 0.4456| 0.4789| 0.4128|
-| 0.5934| 0.6261| 0.5598|
-| 0.5440| 0.5780| 0.5096|
-| 0.4786| 0.5122| 0.4453|
-| 0.7132| 0.7418| 0.6827|
-| 0.5319| 0.5651| 0.4984|
+|           | center|     ui|     li|
+|:----------|------:|------:|------:|
+|Reference  | 0.4744| 0.4982| 0.4507|
+|Smaller n  | 0.2907| 0.3215| 0.2618|
+|Larger n   | 0.4456| 0.4789| 0.4128|
+|Best Fit   | 0.5934| 0.6261| 0.5598|
+|Axis Scale | 0.5440| 0.5780| 0.5096|
+|Axis Label | 0.4786| 0.5122| 0.4453|
+|Outlier    | 0.7132| 0.7418| 0.6827|
+|Lowess     | 0.5319| 0.5651| 0.4984|
 
 ```r
 mtext('% Accuracy', side=1, line=2,cex=1.1)
@@ -327,16 +332,16 @@ getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xla
 
 
 
-| center|     ui|     li|
-|------:|------:|------:|
-| 0.7457| 0.7660| 0.7242|
-| 0.8317| 0.8541| 0.8066|
-| 0.4842| 0.5193| 0.4492|
-| 0.6376| 0.6698| 0.6042|
-| 0.6627| 0.6937| 0.6303|
-| 0.7041| 0.7342| 0.6720|
-| 0.6334| 0.6663| 0.5992|
-| 0.6723| 0.7035| 0.6395|
+|           | center|     ui|     li|
+|:----------|------:|------:|------:|
+|Reference  | 0.7457| 0.7660| 0.7242|
+|Smaller n  | 0.8317| 0.8541| 0.8066|
+|Larger n   | 0.4842| 0.5193| 0.4492|
+|Best Fit   | 0.6376| 0.6698| 0.6042|
+|Axis Scale | 0.6627| 0.6937| 0.6303|
+|Axis Label | 0.7041| 0.7342| 0.6720|
+|Outlier    | 0.6334| 0.6663| 0.5992|
+|Lowess     | 0.6723| 0.7035| 0.6395|
 
 ```r
 abline(v=seq(0,100,by=20),col='darkgray',lty=2,lwd=2)
