@@ -84,12 +84,14 @@ attemptNum1Data<-x[x$attemptNum==1,]
 sum(attemptNum1Data$trueSig) # number of responses used in sense model = 9063
 sum(!attemptNum1Data$trueSig) # number of responses used in spec model = 9032
 
-glmmSense = glmer(correct ~ 1 + (1|id) + style, data=attemptNum1Data[attemptNum1Data$trueSig,],
-	family="binomial") #Sensitivity model
-glmmSpec = glmer(correct ~ 1 + (1|id) + style, data=attemptNum1Data[!attemptNum1Data$trueSig,],
-	family="binomial") #Specificity model
 
-#Show basic output
+glmmSense <- glmer(correct ~ 1 + (1|id) + (1|qNameCoursera) + style, 
+  data=attemptNum1Data[attemptNum1Data$trueSig,],family="binomial") #Sensitivity model
+glmmSpec <- glmer(correct ~ 1 + (1|id) + (1|qNameCoursera) + style,
+  data=attemptNum1Data[!attemptNum1Data$trueSig,],family="binomial") #Specificity model
+
+
+### Show basic output
 print(glmmSense,correlation=FALSE)
 print(glmmSpec,correlation=FALSE)
 
@@ -119,12 +121,17 @@ getORCIs(glmmSpec)
 #Show variance explained by the random intercepts in each model
 #Works specifically for binomial models
 get_var_explained_by_rand_int<-function(model){
-	G<-attr(VarCorr(model)$id,'stddev')^2
-	return( G/(G+(pi^2)/3) )
+  G<-unlist(lapply(
+      (VarCorr(model)),
+      function(x)attr(x,'stddev')
+    ))^2
+  return( G/(sum(G)+(pi^2)/3) )
 }
+
 # get_var_explained_by_rand_int(glmmInt)
 get_var_explained_by_rand_int(glmmSense)
 get_var_explained_by_rand_int(glmmSpec)
+
 
 ```
 
@@ -256,12 +263,12 @@ multi_try_data_spec_leq_cut <- multi_try_data[multi_try_data$attemptNum<=cut & !
 
 #Fit random intercept model
 dim(multi_try_data_sense_leq_cut) #846 = # responses in model
-glmmSenseLearn_rIntercept = glmer(correct~ 1 +  (1|id) + attemptNumFactor*style,
+glmmSenseLearn_rIntercept = glmer(correct~ 1 +  (1|id)+ (1|qNameCoursera) + attemptNumFactor*style,
   data=multi_try_data_sense_leq_cut, family="binomial") # Fit model with interaction terms
 print(glmmSenseLearn_rIntercept,correlation=FALSE)
 
 dim(multi_try_data_spec_leq_cut) #859 = # responses in model
-glmmSpecLearn_rIntercept = glmer(correct ~ 1 +  (1|id) + attemptNumFactor*style,
+glmmSpecLearn_rIntercept = glmer(correct ~ 1 +  (1|id) + (1|qNameCoursera)+ attemptNumFactor*style,
 	data=multi_try_data_spec_leq_cut, family="binomial") #
 print(glmmSpecLearn_rIntercept,correlation=FALSE) 
 
