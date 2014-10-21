@@ -58,7 +58,8 @@ nStyle
 
 
 uStyle
-pretty_style_labels<-c('Reference','Smaller n','Larger n', 'Best Fit','Axis Scale', 'Axis Label', 'Outlier','Lowess') #for use in plots
+pretty_style_labels<-c('Reference', 'Smaller n', 'Larger n', 'Best Fit','Axis Scale',
+		'Axis Label', 'Outlier', 'Lowess') #for use in plots
 
 
 ######### How many users finished their first attempts of the quiz
@@ -98,8 +99,10 @@ sum(!attemptNum1Data$trueSig) # number of responses used in spec model = 9032
 ```
 
 ```r
-glmmSense = glmer(correct ~ 1 + (1|id) + style,data=attemptNum1Data[attemptNum1Data$trueSig,],family="binomial") #Sensitivity model
-glmmSpec = glmer(correct ~ 1 + (1|id) + style,data=attemptNum1Data[!attemptNum1Data$trueSig,],family="binomial") #Specificity model
+glmmSense = glmer(correct ~ 1 + (1|id) + style, data=attemptNum1Data[attemptNum1Data$trueSig,],
+	family="binomial") #Sensitivity model
+glmmSpec = glmer(correct ~ 1 + (1|id) + style, data=attemptNum1Data[!attemptNum1Data$trueSig,],
+	family="binomial") #Specificity model
 
 #Show basic output
 print(glmmSense,correlation=FALSE)
@@ -148,47 +151,56 @@ print(glmmSpec,correlation=FALSE)
 ```
 
 ```r
-#Get odds ratios and CIs
+#Get odds ratios and CIs for odds ratios
 getORCIs<-function(model){ 
   #logit(E(Y))=X*Beta; 
   #odds(E(Y))=exp(X*Beta)
   modelCoef<-fixef(model)
   modelSe<-sqrt(diag(vcov(model))) #std error
-  fit<-exp(modelCoef) 
+  fitted_OR<-exp(modelCoef) 
   li<- exp(modelCoef - qnorm(.975) * modelSe)
   ui<- exp(modelCoef + qnorm(.975) * modelSe)
-  signif(cbind(fit,li,ui),3)
+  kable(signif(cbind(fitted_OR,li,ui),3))
 }
+```
+
+Show odds ratios, CIs for odds ratios, and variance explained by random intercepts.
+
+
+```r
+# 95% Confidence intervals = (li, ui)
 getORCIs(glmmSense)
 ```
 
-```
-##                  fit    li    ui
-## (Intercept)    0.903 0.820 0.993
-## stylen35       0.454 0.384 0.538
-## stylen200      0.891 0.759 1.040
-## stylebestFit   1.620 1.370 1.900
-## styleaxesScale 1.320 1.120 1.560
-## styleaxesLabel 1.020 0.867 1.190
-## styleoutlier   2.750 2.330 3.260
-## stylelowess    1.260 1.070 1.480
-```
+
+
+|               | fitted_OR|    li|    ui|
+|:--------------|---------:|-----:|-----:|
+|(Intercept)    |     0.903| 0.820| 0.993|
+|stylen35       |     0.454| 0.384| 0.538|
+|stylen200      |     0.891| 0.759| 1.040|
+|stylebestFit   |     1.620| 1.370| 1.900|
+|styleaxesScale |     1.320| 1.120| 1.560|
+|styleaxesLabel |     1.020| 0.867| 1.190|
+|styleoutlier   |     2.750| 2.330| 3.260|
+|stylelowess    |     1.260| 1.070| 1.480|
 
 ```r
 getORCIs(glmmSpec)
 ```
 
-```
-##                  fit    li    ui
-## (Intercept)    2.930 2.630 3.270
-## stylen35       1.690 1.390 2.040
-## stylen200      0.320 0.269 0.381
-## stylebestFit   0.600 0.506 0.713
-## styleaxesScale 0.670 0.565 0.795
-## styleaxesLabel 0.811 0.680 0.969
-## styleoutlier   0.589 0.495 0.701
-## stylelowess    0.700 0.588 0.833
-```
+
+
+|               | fitted_OR|    li|    ui|
+|:--------------|---------:|-----:|-----:|
+|(Intercept)    |     2.930| 2.630| 3.270|
+|stylen35       |     1.690| 1.390| 2.040|
+|stylen200      |     0.320| 0.269| 0.381|
+|stylebestFit   |     0.600| 0.506| 0.713|
+|styleaxesScale |     0.670| 0.565| 0.795|
+|styleaxesLabel |     0.811| 0.680| 0.969|
+|styleoutlier   |     0.589| 0.495| 0.701|
+|stylelowess    |     0.700| 0.588| 0.833|
 
 ```r
 #Show variance explained by the random intercepts in each model
@@ -201,19 +213,15 @@ get_var_explained_by_rand_int<-function(model){
 get_var_explained_by_rand_int(glmmSense)
 ```
 
-```
-## (Intercept) 
-##      0.1077
-```
+(Intercept) 
+     0.1077 
 
 ```r
 get_var_explained_by_rand_int(glmmSpec)
 ```
 
-```
-## (Intercept) 
-##      0.1511
-```
+(Intercept) 
+     0.1511 
 
 
 Recreate two examples of plots shown to users.
@@ -227,26 +235,29 @@ plotSigRefInd<-which(pres=='n100ref'&pvals<.05)[4]
 plotNotSigRefInd<-which(pres=='n100ref'&pvals>=.05)[4]
 
 plot(xes[plotSigRefInd,],yes[plotSigRefInd,],xlab='',ylab='')
-mtext(paste0('Example: Truly Significant Plot\n(p=',round(pvals[plotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
+mtext(paste0('Example: Truly Significant Plot\n(p=',round(pvals[plotSigRefInd],3),')'),
+  3,line=.4,font=2,cex=1.2)
 mtext('X',1,line=2)
 mtext('Y',2,line=2.5)
 mtext('A)',3,line=1.5,adj=0,font=2,cex=1.2)
 
 plot(xes[plotNotSigRefInd,],yes[plotNotSigRefInd,],xlab='',ylab='')
-mtext(paste0('Example: Non-significant Plot\n(p=',round(pvals[plotNotSigRefInd],3),')'),3,line=.4,font=2,cex=1.2)
+mtext(paste0('Example: Non-significant Plot\n(p=',round(pvals[plotNotSigRefInd],3),')'),3,line=.4,
+  font=2,cex=1.2)
 mtext('X',1,line=2)
 mtext('B)',3,line=1.5,adj=0,font=2,cex=1.2)
 ```
 
 ![plot of chunk example_ref_plots](figure/example_ref_plots.pdf) 
 
-Get confidence intervals and plot results.
+Get confidence intervals on accuracy scale, as opposed to odds ratio scale, and plot results.
 
 
 ```r
 #Function for generating confidence intervals for the fitted accuracy rates for each plot style;
 #This function is meant to be used separately, for both the sensitivity and specificity models
-getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,axisLab=TRUE,cex.axis=1,offset=0, ref_lwd=2, ...){ #y can also be specificity
+getCIs<-function(model=glmmSense, plotInd=1:K, ci_width_scalar=1.96, plotIt=TRUE,
+	axisLab=TRUE, cex.axis=1, offset=0, ref_lwd=2, ...){ #y can also be specificity
   #diag(vcov(model))
 	#fixef(model)
 	
@@ -275,12 +286,14 @@ getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,ax
 	}	
 
 	if(plotIt){
-		plotCI(x=center[plotInd]*100,y=offset+(length(plotInd)):1,ui=ui[plotInd]*100,li=li[plotInd]*100,pch=19,cex=.5,yaxt='n',err='x',ylab='', ...)
-		if(axisLab) axis(2, at=1:(length(plotInd)), labels=pretty_style_labels[plotInd][(length(plotInd)):1],cex.axis=cex.axis,las=2) #need to reorder labels so they go down, not up
+		plotCI(x=center[plotInd]*100,y=offset+(length(plotInd)):1,ui=ui[plotInd]*100,
+			li=li[plotInd]*100,pch=19,cex=.5,yaxt='n',err='x',ylab='', ...)
+		if(axisLab) axis(2, at=1:(length(plotInd)), labels=pretty_style_labels[plotInd][(length(plotInd)):1],
+			cex.axis=cex.axis,las=2) #need to reorder labels so they go down, not up
 		abline(v=center[1]*100,lty=2,lwd=ref_lwd)
 	}
 	
-	return(cbind(center,ui,li,modelCoef))
+	return(kable(cbind(center,ui,li)))
 }
 
 
@@ -288,38 +301,42 @@ getCIs<-function(model=glmmSense,plotInd=1:K,ci_width_scalar=1.96,plotIt=TRUE,ax
 par(oma=c(0,4,0,0))
 plotInd4CIfig_pre<-c(1,order(fixef(glmmSense)[-1])+1) #order plots by sense coef, not including ref category
 plotInd4CIfig<-plotInd4CIfig_pre[plotInd4CIfig_pre!=7] #dropping outlier from plot
-getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(0,100),cex.axis=1.1,lwd=2,offset=.125,ylim=c(.8,7.2))
+getCIs(glmmSense,plotInd=plotInd4CIfig,col=c("darkblue"),main='',xlab='',xlim=c(0,100),
+	cex.axis=1.1,lwd=2,offset=.125,ylim=c(.8,7.2))
 ```
 
-```
-##             center     ui     li modelCoef
-## (Intercept) 0.4744 0.4982 0.4507  -0.10254
-## n35         0.2907 0.3215 0.2618  -0.78926
-## n200        0.4456 0.4789 0.4128  -0.11576
-## bestFit     0.5934 0.6261 0.5598   0.48043
-## axesScale   0.5440 0.5780 0.5096   0.27902
-## axesLabel   0.4786 0.5122 0.4453   0.01702
-## outlier     0.7132 0.7418 0.6827   1.01330
-## lowess      0.5319 0.5651 0.4984   0.23034
-```
+
+
+| center|     ui|     li|
+|------:|------:|------:|
+| 0.4744| 0.4982| 0.4507|
+| 0.2907| 0.3215| 0.2618|
+| 0.4456| 0.4789| 0.4128|
+| 0.5934| 0.6261| 0.5598|
+| 0.5440| 0.5780| 0.5096|
+| 0.4786| 0.5122| 0.4453|
+| 0.7132| 0.7418| 0.6827|
+| 0.5319| 0.5651| 0.4984|
 
 ```r
 mtext('% Accuracy', side=1, line=2,cex=1.1)
 mtext('Accuracy of Significance Classifications', side=3, line=.4,cex=1.2,font=2)
-getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xlab='',xlim=c(0,100),lwd=2,add=TRUE,offset=-.125)
+getCIs(glmmSpec,plotInd=plotInd4CIfig,col=c("darkred"),axisLab=FALSE,main='',xlab='',
+	xlim=c(0,100),lwd=2,add=TRUE,offset=-.125)
 ```
 
-```
-##             center     ui     li modelCoef
-## (Intercept) 0.7457 0.7660 0.7242    1.0757
-## n35         0.8317 0.8541 0.8066    0.5219
-## n200        0.4842 0.5193 0.4492   -1.1390
-## bestFit     0.6376 0.6698 0.6042   -0.5106
-## axesScale   0.6627 0.6937 0.6303   -0.4003
-## axesLabel   0.7041 0.7342 0.6720   -0.2089
-## outlier     0.6334 0.6663 0.5992   -0.5287
-## lowess      0.6723 0.7035 0.6395   -0.3572
-```
+
+
+| center|     ui|     li|
+|------:|------:|------:|
+| 0.7457| 0.7660| 0.7242|
+| 0.8317| 0.8541| 0.8066|
+| 0.4842| 0.5193| 0.4492|
+| 0.6376| 0.6698| 0.6042|
+| 0.6627| 0.6937| 0.6303|
+| 0.7041| 0.7342| 0.6720|
+| 0.6334| 0.6663| 0.5992|
+| 0.6723| 0.7035| 0.6395|
 
 ```r
 abline(v=seq(0,100,by=20),col='darkgray',lty=2,lwd=2)
@@ -356,8 +373,10 @@ userNames2<-unique(x[multi_try_data_ind,'id'])
 multi_users_1st_tries<-
 multi_users_2nd_tries<-rep(NA,length(userNames2))
 for(i in 1:length(userNames2)){
-  multi_users_2nd_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] & x[multi_try_data_ind,'attemptNum']==2)
-  multi_users_1st_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] & x[multi_try_data_ind,'attemptNum']==1)
+  multi_users_2nd_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] &
+  	x[multi_try_data_ind,'attemptNum']==2)
+  multi_users_1st_tries[i]<- sum(x[multi_try_data_ind,'id']==userNames2[i] & 
+  	x[multi_try_data_ind,'attemptNum']==1)
 }
 mean(multi_users_1st_tries==9) #=.92
 ```
@@ -501,11 +520,12 @@ get_var_explained_by_rand_int(glmmSpecLearn_rIntercept)
 
 ```r
 #Get CIs for learning models
-# Get confidence intervals for the fitted accuracy rates for each combination of style and attempt number in the learning model. 
+# Get confidence intervals for the fitted accuracy rates for each combination of style and 
+# attempt number in the learning model. 
 # Also get confidence intervals for odds ratios for the learning effect in each category.
 # To get interpretation of effect of attemptNum, we need to add attemptNum coeff to interaction terms. 
-#Negative interaction just means that the learning effect is less strong than in the reference category.
-#The function below returns a list of CI matrixes for each style, with rows for attemptNum.
+# Negative interaction just means that the learning effect is less strong than in the reference category.
+# The function below returns a list of CI matrixes for each style, with rows for attemptNum.
 getCIlearn<-function(model,ci_width_scalar=1.96,test_type='two_sided'){    
 	
 	modelCoef<-fixef(model)
@@ -519,10 +539,13 @@ getCIlearn<-function(model,ci_width_scalar=1.96,test_type='two_sided'){
 
 	for(k in 1:K){
 		k_mat<-matrix(NA,cut,8)
-		colnames(k_mat)<-c('centerProb','liProb','uiProb','centerOR','liOR','uiOR','zstat','p_value') #we'll add this to CImats later
+		colnames(k_mat)<-c('centerProb','liProb','uiProb','centerOR','liOR',
+			'uiOR','zstat','p_value') #we'll add this to CImats later
 		#attemptNum is the row index of k_mat
 		for(no in 1:cut){
-      #a vector to multiply by the model coefficients
+      # let a be the vector such that a'modelCoef = intercept + coefficient k
+			#abbreviate this t(a)%*%modelCoef as af
+      
 			a<-rep(0,times=length(coefNames))
 			names(a)<-coefNames
 			a['(Intercept)']<-1
@@ -530,8 +553,6 @@ getCIlearn<-function(model,ci_width_scalar=1.96,test_type='two_sided'){
 			if(no>1) a[paste0('attemptNumFactor',no)]<-1
 			if(k>1 & no>1) a[paste0('attemptNumFactor',no,':style',uStyle[k])]	<-1
 
-			#let a be the vector such that a'modelCoef = intercept + coefficient k
-			#abbreviate this t(a)%*%modelCoef as af
 			var_af<- t(a) %*% vcov(model) %*% a
 			se_af<-sqrt(as.numeric(var_af))
 
@@ -541,8 +562,9 @@ getCIlearn<-function(model,ci_width_scalar=1.96,test_type='two_sided'){
 			k_mat[no,'centerProb']<- invLogit(center_logOdds)
     
 
-			#pvalues need to be calculated the same way, but without the intercept term, and without the baseline style term.
-			#Get dist of "wf"=t(w)%*%coefficients, wwhere w is a vector similar to "a", above.
+			# pvalues need to be calculated the same way, but without the intercept term,
+			# and without the baseline style term.
+			# Get dist of "wf"=t(w)%*%coefficients, where w is a vector similar to "a", above.
 			if(no==1) next #This not relevant if a attemptNum=1
       
 			w<-rep(0,times=length(coefNames))
@@ -667,16 +689,21 @@ Display results for learning.
 
 ```r
 #Plotting (CIs for accuracy)
-plot_LearnCImats<-function(ciMat,plotStyle='n100ref',type='sense',data=multi_try_data,offset=0,cex.axis=1.1,add=FALSE, ...){
+plot_LearnCImats<-function(ciMat, plotStyle='n100ref', type='sense', data=multi_try_data,
+		offset=0, cex.axis=1.1, add=FALSE, ...){
 	cut<-dim(ciMat)[1]
 	thickness<-c(2,2)
   
   
-	plotCI(x=ciMat[,'centerProb'],y=1:cut+offset,ui=ciMat[,'uiProb'],li=ciMat[,'liProb'],err='x',pch=19,cex=.5,xaxt='n',yaxt='n',lwd=thickness,xlim=c(-.05,1.05),ylim=c(.7,cut+.3),add=add, ...)
+	plotCI(x=ciMat[,'centerProb'], y=1:cut+offset, ui=ciMat[,'uiProb'], li=ciMat[,'liProb'],
+		err='x', pch=19, cex=.5, xaxt='n', yaxt='n', lwd=thickness, xlim=c(-.05,1.05),
+		ylim=c(.7,cut+.3), add=add, ...)
 	if(add==FALSE){
-    axis(2, at=(1:cut), labels=1:cut,cex.axis=cex.axis) #need to reorder labels so they go down, not up
+	#need to reorder labels so they go down, not up
+    axis(2, at=(1:cut), labels=1:cut,cex.axis=cex.axis) 
   	xLabels<-seq(0,1,length=6)
-  	axis(1, at=xLabels, labels=xLabels*100,cex.axis=cex.axis) #need to reorder labels so they go down, not up
+  	#need to reorder labels so they go down, not up
+  	axis(1, at=xLabels, labels=xLabels*100,cex.axis=cex.axis) 
   	abline(v=seq(0,1,by=.2),lty=2,lwd=2,col='darkgray')	
     mtext(text='Attempt\nNumber',side=2,line=2.25,cex=cex.axis)
   }
@@ -693,20 +720,27 @@ ciMat_learn_spec  <- getCIlearn(glmmSpecLearn_rIntercept)
 par(mfrow=c(3,1),mar=c(2,7,3,1),oma=c(3,0,0,0))
 
 #REFERENCE
-plot_LearnCImats(ciMat_learn_sense[['n100ref']],col='darkblue',plotStyle='n100ref',type='sense',xlab='',ylab='',offset=.125)
-plot_LearnCImats(ciMat_learn_spec[['n100ref']],main='',col='darkred',plotStyle='n100ref',type='spec',xlab='',add=TRUE,offset=-.125)
+plot_LearnCImats(ciMat_learn_sense[['n100ref']],col='darkblue',plotStyle='n100ref',
+	type='sense',xlab='',ylab='',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['n100ref']],main='',col='darkred',
+	plotStyle='n100ref',type='spec',xlab='',add=TRUE,offset=-.125)
 mtext(text='Reference',side=3,line=.4,cex=1.2,font=2)
 
-legend('topleft',c('Sensitivity', 'Specificity'),col=c('darkblue','darkred'),pch=19,cex=1.4,bg='white')
+legend('topleft',c('Sensitivity', 'Specificity'),col=c('darkblue','darkred'),
+	pch=19,cex=1.4,bg='white')
 
 #SMALL N
-plot_LearnCImats(ciMat_learn_sense[['n35']],col='darkblue',plotStyle='n35',type='sense',ylab='',xlab='',offset=.125)
-plot_LearnCImats(ciMat_learn_spec[['n35']],main='',col='darkred',plotStyle='n35',type='spec',xlab='',ylab='',offset=-.125,add=TRUE)
+plot_LearnCImats(ciMat_learn_sense[['n35']],col='darkblue',plotStyle='n35',
+	type='sense',ylab='',xlab='',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['n35']],main='',col='darkred',
+	plotStyle='n35',type='spec',xlab='',ylab='',offset=-.125,add=TRUE)
 mtext(text='Smaller n',side=3,line=.4,cex=1.2,font=2)
 
 #BEST FIT
-plot_LearnCImats(ciMat_learn_sense[['bestFit']],col='darkblue',ylab='',xlab='',plotStyle='bestFit',type='sense',offset=.125)
-plot_LearnCImats(ciMat_learn_spec[['bestFit']],main='',col='darkred',plotStyle='bestFit',type='spec',xlab='',offset=-.125,add=TRUE)
+plot_LearnCImats(ciMat_learn_sense[['bestFit']],col='darkblue',ylab='',
+	xlab='',plotStyle='bestFit',type='sense',offset=.125)
+plot_LearnCImats(ciMat_learn_spec[['bestFit']],main='',col='darkred',
+	plotStyle='bestFit',type='spec',xlab='',offset=-.125,add=TRUE)
 mtext(text='Best Fit',side=3,line=.4,cex=1.2,font=2)
 
 mtext(text='% Accuracy',side=1,line=3,cex=1.1)
