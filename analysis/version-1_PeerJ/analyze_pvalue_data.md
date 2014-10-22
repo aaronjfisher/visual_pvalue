@@ -152,7 +152,7 @@ print(glmmSpec,correlation=FALSE)
 
 Show odds ratios, CIs for odds ratios, and variance explained by random intercepts.
 
-_**Note: some the odds ratios reported here slightly vary from those in our [October 16, 2014 PeerJ paper](https://peerj.com/articles/589/), at around the 3rd decimal place.**_ This is because we ran our initial analysis under an earlier version of `lme4`. Loading the `lme4.0` package instead of `lme4` will reproduce our original results. These results are also visible in earlier versions of this write-up, in the "add knitr code" commit on Apr 16, 2014, in history of this repository. The `lme4.0` package is a maintained version of the `lme4` package designed to aid in reproducing results from earlier versions of `lme4`.
+_**Note: some of the odds ratios reported here slightly vary from those in our [October 16, 2014 PeerJ paper](https://peerj.com/articles/589/), at around the 3rd decimal place.**_ This is because we ran our initial analysis under an earlier version of `lme4`. Loading the `lme4.0` package instead of `lme4` will reproduce our original results. These results are also visible in earlier versions of this write-up, in the "add knitr code" commit on Apr 16, 2014, in history of this repository. The `lme4.0` package is a maintained version of the `lme4` package designed to aid in reproducing results from earlier versions of `lme4`.
 
 https://github.com/lme4/lme4/
 
