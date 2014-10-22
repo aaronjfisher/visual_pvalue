@@ -150,8 +150,15 @@ print(glmmSpec,correlation=FALSE)
 ##         -0.400          -0.209          -0.529          -0.357
 ```
 
+Show odds ratios, CIs for odds ratios, and variance explained by random intercepts.
+
+_**Note: some the odds ratios reported here slightly vary from those in our [October 16, 2014 PeerJ paper](https://peerj.com/articles/589/), at around the 3rd decimal place.**_ This is because we ran our initial analysis under an earlier version of `lme4`. Loading the `lme4.0` package instead of `lme4` will reproduce our original results. These results are also visible in earlier versions of this write-up, in the "add knitr code" commit on Apr 16, 2014, in history of this repository. The `lme4.0` package is a maintained version of the `lme4` package designed to aid in reproducing results from earlier versions of `lme4`.
+
+https://github.com/lme4/lme4/
+
+
 ```r
-#Get odds ratios and CIs for odds ratios
+#Function to get odds ratios and CIs for odds ratios
 getORCIs<-function(model){ 
   #logit(E(Y))=X*Beta; 
   #odds(E(Y))=exp(X*Beta)
@@ -165,12 +172,7 @@ getORCIs<-function(model){
   rownames(out)<- pretty_style_labels
   kable(out)
 }
-```
 
-Show odds ratios, CIs for odds ratios, and variance explained by random intercepts.
-
-
-```r
 # 95% Confidence intervals = (li, ui)
 getORCIs(glmmSense)
 ```
