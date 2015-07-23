@@ -5,7 +5,10 @@ Contents
 * "generate_plots" folder: code for generating the plots shown to users
 * "pvalue_plot_image_library folder": The full library of plots shown to users is contained in the 
 * "analysis" folder" code for our analysis is contained in the 
-* "shiny_app" folder: code for our shiny app, which can be run by entering the following code to the R console
+* "shiny_app" folder: code for our shiny app.
+ 
+
+To run the shiny app, enter the following code into the R console
 
 ```S
 library(shiny)
