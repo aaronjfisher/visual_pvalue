@@ -2,9 +2,9 @@ Contents
 =============
 
 * "supplement.pdf": supplemental materials providing additional details on our survey procedure, model fitting, and background information on Coursera.
-* "generate_plots" folder: code for generating the plots shown to users
-* "pvalue_plot_image_library folder": The full library of plots shown to users is contained in the 
-* "analysis" folder" code for our analysis is contained in the 
+* "generate_plots" folder: code for generating the plots shown to users.
+* "pvalue_plot_image_library folder": full library of plots shown to users.
+* "analysis" folder" code for our analysis.
 * "shiny_app" folder: code for our shiny app.
  
 
